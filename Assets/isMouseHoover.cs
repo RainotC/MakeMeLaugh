@@ -9,6 +9,10 @@ public class isMouseHoover : MonoBehaviour
     public UnityEvent onUnhoverEvent;
     bool isHovered;
 
+
+    [Header("Ink JSON")]
+    [SerializeField] private TextAsset inkJSON;
+
         
     void OnMouseEnter() {
         isHovered = true;
@@ -21,6 +25,11 @@ public class isMouseHoover : MonoBehaviour
         Debug.Log("not on object");
         onUnhoverEvent.Invoke();
         
+    }
+
+    void OnMouseDown(){
+        Debug.Log(inkJSON.text);
+        DialogueManager.GetInstance().EnterDialogueMode(inkJSON);
     }
 
     // Start is called before the first frame update
