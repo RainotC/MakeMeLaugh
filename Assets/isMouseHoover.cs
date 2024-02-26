@@ -35,8 +35,9 @@ public class isMouseHoover : MonoBehaviour
     void OnMouseDown(){
         if(!DialogueManager.instance.dialogueIsPlaying){
             Debug.Log(inkJSON.text);
-            DialogueManager.GetInstance().EnterDialogueMode(inkJSON);
             onUnhoverEvent.Invoke();
+            DialogueManager.GetInstance().EnterDialogueMode(inkJSON);
+            
         }
     }
 

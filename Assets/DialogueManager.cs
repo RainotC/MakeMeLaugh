@@ -18,6 +18,7 @@ public class DialogueManager : MonoBehaviour
 
     private Story currentStory;
     public bool dialogueIsPlaying;
+    private bool isInChoices =false;
 
     public static DialogueManager instance;
 
@@ -55,13 +56,14 @@ public class DialogueManager : MonoBehaviour
         // return right away if dialogue isn't playing
         if (!dialogueIsPlaying) 
         {
-             if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
-            {
-                ContinueStory();
-            }
+            return;
         }
 
-    
+  
+        if (Input.GetMouseButtonDown(0) && !isInChoices)
+        {
+            ContinueStory();
+        }
     }
 
     public void EnterDialogueMode(TextAsset inkJSON) 
@@ -70,12 +72,12 @@ public class DialogueManager : MonoBehaviour
         dialogueIsPlaying = true;
         dialoguePanel.SetActive(true);
 
-        ContinueStory();
     }
 
-    private void ExitDialogueMode() 
+    private IEnumerator ExitDialogueMode() 
     {
-        
+        yield return new WaitForSeconds(0.2f);
+
         dialogueIsPlaying = false;
         dialoguePanel.SetActive(false);
         dialogueText.text = "";
@@ -92,15 +94,18 @@ public class DialogueManager : MonoBehaviour
         }
         else 
         {
-            ExitDialogueMode();
+            StartCoroutine(ExitDialogueMode());
         }
     }
 
     private void DisplayChoices() 
-    {
+    {   
+        
         List<Choice> currentChoices = currentStory.currentChoices;
-
-        // defensive check to make sure our UI can support the number of choices coming in
+        
+        
+        isInChoices = currentChoices.Count > 0;
+        // check to make sure our UI can support the number of choices coming in
         if (currentChoices.Count > choices.Length)
         {
             Debug.LogError("More choices were given than the UI can support. Number of choices given: " 
@@ -121,23 +126,15 @@ public class DialogueManager : MonoBehaviour
             choices[i].gameObject.SetActive(false);
         }
 
-        StartCoroutine(SelectFirstChoice());
     }
 
-    private IEnumerator SelectFirstChoice() 
-    {
-        // Event System requires we clear it first, then wait
-        // for at least one frame before we set the current selected object.
-        EventSystem.current.SetSelectedGameObject(null);
-        yield return new WaitForEndOfFrame();
-        EventSystem.current.SetSelectedGameObject(choices[0].gameObject);
-    }
+
 
     public void MakeChoice(int choiceIndex)
     {
         currentStory.ChooseChoiceIndex(choiceIndex);
-        // NOTE: The below two lines were added to fix a bug after the Youtube video was made
-        Input.GetMouseButtonDown(0); // this is specific to my InputManager script
+        
+        Input.GetMouseButtonDown(0);
         ContinueStory();
     }
 
